@@ -90,7 +90,9 @@ catkin_package(
 #  LIBRARIES px4flow_hover
 #  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs
 #  DEPENDS system_lib
+
 #  INCLUDE_DIRS include
+
   CATKIN_DEPENDS roscpp std_msgs sensor_msgs px_comm
 )
 

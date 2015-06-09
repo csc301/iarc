@@ -83,7 +83,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+
  # INCLUDE_DIRS include
+
   CATKIN_DEPENDS roscpp std_msgs geometry_msgs   simple_obstacle_avoidance   px4flow_hover
 #  LIBRARIES decision
 #  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs

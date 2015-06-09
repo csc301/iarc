@@ -43,9 +43,11 @@ catkin_package(
 )
 
 include_directories(
+
   ${catkin_INCLUDE_DIRS}
   ${line_detect_SOURCE_DIR}/include/line_detect
   ${OpenCV_INCLUDE_DIRS}
+
 )
 
 
