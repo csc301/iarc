@@ -1,0 +1,11 @@
+<launch>
+ <include file="$(find cmd_vel_serial)/launch/cmd_vel_serial.launch" />
+ <include file="$(find rplidar_ros)/launch/rplidar.launch" />
+
+    <node name="px4flow" pkg="px4flow" type="px4flow_node" output="screen" respawn="true" clear_params="true">
+        <rosparam file="$(find px4flow)/launch/px4flow_parameters.yaml"/>
+    </node>
+      <node name="px4flow_hover_node" pkg="px4flow_hover" type="px4flow_hover_node" output="screen" />
+      <!--node name="obstacle_avoidance_node" pkg="simple_obstacle_avoidance" type="obstacle_avoidance_node" output="screen" /-->
+      <!--node name="decision_node" pkg="decision" type="decision_node" output="screen" /-->
+</launch>

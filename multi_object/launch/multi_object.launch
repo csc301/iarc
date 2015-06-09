@@ -1,0 +1,7 @@
+<launch>
+
+  <node pkg="multi_object" type="multi_object_node" name="from_camera" output="screen">
+    <param name="camera_topic_name" type="string" value="/image_raw"/>
+  </node>
+
+</launch>

@@ -1,0 +1,179 @@
+#!/usr/bin/env python
+#coding=utf-8
+
+import rospy
+from geometry_msgs.msg import Twist
+
+import sys, select, termios, tty
+
+msg = """
+开始控制自己的pelican吧!
+---------------------------
+按键布局对应实际方向控制（和AR.Drone相同）:
+   q上升    w左转    e前进    r右转
+   a下降    s左进    d后退    f右进
+
+
+t/g : 增加/降低  10%线速度上限     初速度50 最大100
+y/h : 增加/降低  10%角速度上限     初速度50 最大100
+空格: 强制输出全零
+其他按键 : 平滑输出全零
+
+CTRL-C 退出
+"""
+init_speed = 100
+max_speed = 100
+
+moveBindings = {
+        'q':(0,0,init_speed,0),
+        'w':(0,0,0,init_speed),
+        'e':(init_speed,0,0,0),
+        'r':(0,0,0,-1*init_speed),
+        'a':(0,0,-1*init_speed,0),
+        's':(0,init_speed,0,0),
+        'd':(-1*init_speed,0,0,0),
+        'f':(0,-1*init_speed,0,0),
+           }
+
+speedBindings={
+        't':(1.1,1.1,1.1,1),
+        'g':(0.9,0.9,0.9,1),
+        'y':(1,1,1,1.1),
+        'h':(1,1,1,0.9),
+          }
+
+def getKey():
+    tty.setraw(sys.stdin.fileno())
+    rlist, _, _ = select.select([sys.stdin], [], [], 0.02)
+    if rlist:
+        key = sys.stdin.read(1)
+    else:
+        key = ''
+
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)
+    return key
+
+def vels(control_pitch,control_roll,control_throttle,control_yaw):
+    return "currently:\tpitch %s\troll %s\tthrottle %s\tyaw %s " % (control_pitch,control_roll,control_throttle,control_yaw)
+
+if __name__=="__main__":
+    settings = termios.tcgetattr(sys.stdin)
+    
+    rospy.init_node('keyboard_controller')
+    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+
+
+    status = 0
+    count = 0
+    acc = 0.1
+    
+    pitch = 0
+    roll = 0
+    throttle = 0
+    yaw = 0
+
+    target_pitch = 0
+    target_roll = 0
+    target_throttle = 0
+    target_yaw = 0
+
+    control_pitch = 0
+    control_roll = 0
+    control_throttle = 0
+    control_yaw = 0
+
+    try:
+        print msg
+        print vels(control_pitch,control_roll,control_throttle,control_yaw)
+        while(1):
+            key = getKey()
+            if key in moveBindings.keys():
+                pitch = moveBindings[key][0]
+                roll = moveBindings[key][1]
+                throttle = moveBindings[key][2]
+                yaw = moveBindings[key][3]
+                count = 0
+            elif key in speedBindings.keys():
+                pitch = pitch * speedBindings[key][0]
+                roll = roll * speedBindings[key][1]
+                throttle = throttle * speedBindings[key][2]
+                yaw = yaw * speedBindings[key][3]
+                count = 0
+
+                print vels(control_pitch,control_roll,control_throttle,control_yaw)
+                if (status == 14):
+                    print msg
+                status = (status + 1) % 15
+            elif key == ' ':
+                pitch = 0
+                roll = 0
+                throttle = 0
+                yaw = 0
+                control_pitch = 0
+                control_roll = 0
+                control_throttle = 0
+                control_yaw = 0
+            else:
+                count = count + 1
+                if count > 25:
+                    pitch = 0
+                    roll = 0
+                    throttle = 0
+                    yaw = 0
+                if (key == '\x03'):
+                    break
+
+            target_pitch = pitch
+            target_roll = roll
+            target_throttle = throttle
+            target_yaw = yaw
+
+            if target_pitch > control_pitch:
+                control_pitch = min( target_pitch, control_pitch + 100, max_speed)
+            elif target_pitch < control_pitch:
+                control_pitch = max( target_pitch, control_pitch - 100, -1*max_speed)
+            else:
+                control_pitch = target_pitch
+
+            if target_roll > control_roll:
+                control_roll = min( target_roll, control_roll + 100, max_speed)
+            elif target_roll < control_roll:
+                control_roll = max( target_roll, control_roll - 100, -1*max_speed)
+            else:
+                control_roll = target_roll
+
+            if target_throttle > control_throttle:
+                control_throttle = min( target_throttle, control_throttle + 100, max_speed)
+            elif target_throttle < control_throttle:
+                control_throttle = max( target_throttle, control_throttle - 100, -1*max_speed)
+            else:
+                control_throttle = target_throttle
+
+            if target_yaw > control_yaw:
+                control_yaw = min( target_yaw, control_yaw + 100, max_speed)
+            elif target_yaw < control_yaw:
+                control_yaw = max( target_yaw, control_yaw - 100, -1*max_speed)
+            else:
+                control_yaw = target_yaw
+
+            twist = Twist()
+            twist.linear.x = control_roll 
+            twist.linear.y = control_pitch
+	    twist.linear.z = control_throttle
+            twist.angular.x = 0 
+	    twist.angular.y = 0
+	    twist.angular.z = control_yaw
+
+            pub.publish(twist)
+
+
+    except:
+        print "systerm terminated"
+
+    finally:
+        twist = Twist()
+        twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0
+        twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
+        pub.publish(twist)
+
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, settings)

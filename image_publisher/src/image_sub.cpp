@@ -1,0 +1,32 @@
+#include <iostream>
+#include "ros/ros.h"
+#include <std_msgs/Header.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/opencv.hpp>
+
+void imageCallback(const sensor_msgs::ImageConstPtr& msg)
+{
+  try
+  {
+    cv::imshow("view", cv_bridge::toCvShare(msg, "mono8")->image);
+  }
+  catch (cv_bridge::Exception& e)
+  {
+    ROS_ERROR("Could not convert from '%s' to 'bgr8'.", msg->encoding.c_str());
+  }
+}
+
+int main(int argc, char **argv)
+{
+  ros::init(argc, argv, "image_sub_node");
+  ros::NodeHandle nh;
+  cv::namedWindow("view");
+  cv::startWindowThread();
+  image_transport::ImageTransport it(nh);
+  image_transport::Subscriber sub = it.subscribe("left_image", 100, imageCallback);
+  ros::spin();
+  cv::destroyWindow("view");
+}

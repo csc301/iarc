@@ -1,0 +1,12 @@
+<launch>
+
+  <node pkg="cmd_vel_serial" type="cmd_vel_serial_node" name="to_stm32" output="screen">
+
+    <param name="stm32_serial_port" type="string" value="/dev/ttyUSB0"/>
+
+  </node>
+
+</launch>
+
+
+

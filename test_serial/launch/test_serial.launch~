@@ -1,0 +1,14 @@
+<launch>
+
+  <!--node pkg="test_serial" type="receive_cmd_vel_node" name="from_stm32" output="screen"-->
+
+    <!--param name="stm32_port" type="string" value="/dev/ttyUSB1"/-->
+
+  <!--/node-->
+
+    <node pkg="test_serial" type="send_cmd_vel_node" name="from_bar" output="screen"/>
+
+</launch>
+
+
+
