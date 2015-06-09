@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="line_detect" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/line_detect" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add directory="/opt/ros/indigo/include" />
+					<Add directory="../../devel/include" />
+				</Compiler>
+				<Linker>
+					<Add library="/opt/ros/indigo/lib/libactionlib.so" />
+					<Add library="/opt/ros/indigo/lib/libbondcpp.so" />
+					<Add library="/opt/ros/indigo/lib/libcamera_calibration_parsers.so" />
+					<Add library="/opt/ros/indigo/lib/libcamera_info_manager.so" />
+					<Add library="/opt/ros/indigo/lib/libclass_loader.so" />
+					<Add library="/opt/ros/indigo/lib/libcollada_parser.so" />
+					<Add library="/opt/ros/indigo/lib/libcollada_parser_plugin.so" />
+					<Add library="/opt/ros/indigo/lib/libcollada_urdf.so" />
+					<Add library="/opt/ros/indigo/lib/libcompressed_depth_image_transport.so" />
+					<Add library="/opt/ros/indigo/lib/libcompressed_image_transport.so" />
+					<Add library="/opt/ros/indigo/lib/libcpp_common.so" />
+					<Add library="/opt/ros/indigo/lib/libcv_bridge.so" />
+					<Add library="/opt/ros/indigo/lib/libdefault_plugin.so" />
+					<Add library="/opt/ros/indigo/lib/libdepth_image_proc.so" />
+					<Add library="/opt/ros/indigo/lib/libdiagnostic_aggregator.so" />
+					<Add library="/opt/ros/indigo/lib/libdynamic_reconfigure_config_init_mutex.so" />
+					<Add library="/opt/ros/indigo/lib/libeigen_conversions.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_api_plugin.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_block_laser.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_bumper.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_camera.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_camera_utils.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_depth_camera.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_diff_drive.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_f3d.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_force.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_ft_sensor.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_gpu_laser.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_hand_of_god.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_imu.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_joint_pose_trajectory.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_joint_state_publisher.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_joint_trajectory.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_laser.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_multicamera.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_openni_kinect.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_p3d.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_paths_plugin.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_planar_move.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_projector.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_prosilica.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_skid_steer_drive.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_template.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_tricycle_drive.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_utils.so" />
+					<Add library="/opt/ros/indigo/lib/libgazebo_ros_video.so" />
+					<Add library="/opt/ros/indigo/lib/libgeometric_shapes.so" />
+					<Add library="/opt/ros/indigo/lib/libimage_geometry.so" />
+					<Add library="/opt/ros/indigo/lib/libimage_proc.so" />
+					<Add library="/opt/ros/indigo/lib/libimage_rotate.so" />
+					<Add library="/opt/ros/indigo/lib/libimage_transport.so" />
+					<Add library="/opt/ros/indigo/lib/libimage_transport_plugins.so" />
+					<Add library="/opt/ros/indigo/lib/libimage_view.so" />
+					<Add library="/opt/ros/indigo/lib/libincrement.so" />
+					<Add library="/opt/ros/indigo/lib/libinteractive_markers.so" />
+					<Add library="/opt/ros/indigo/lib/libkdl_conversions.so" />
+					<Add library="/opt/ros/indigo/lib/libkdl_parser.so" />
+					<Add library="/opt/ros/indigo/lib/liblaser_geometry.so" />
+					<Add library="/opt/ros/indigo/lib/liblaser_scan_filters.so" />
+					<Add library="/opt/ros/indigo/lib/libmean.so" />
+					<Add library="/opt/ros/indigo/lib/libmedian.so" />
+					<Add library="/opt/ros/indigo/lib/libmessage_filters.so" />
+					<Add library="/opt/ros/indigo/lib/libMultiCameraPlugin.so" />
+					<Add library="/opt/ros/indigo/lib/libnodeletlib.so" />
+					<Add library="/opt/ros/indigo/lib/libnodelet_math.so" />
+					<Add library="/opt/ros/indigo/lib/liboctomap.so" />
+					<Add library="/opt/ros/indigo/lib/liboctomath.so" />
+					<Add library="/opt/ros/indigo/lib/liborocos-kdl.so" />
+					<Add library="/opt/ros/indigo/lib/libparams.so" />
+					<Add library="/opt/ros/indigo/lib/libpcl_ros_features.so" />
+					<Add library="/opt/ros/indigo/lib/libpcl_ros_filters.so" />
+					<Add library="/opt/ros/indigo/lib/libpcl_ros_io.so" />
+					<Add library="/opt/ros/indigo/lib/libpcl_ros_segmentation.so" />
+					<Add library="/opt/ros/indigo/lib/libpcl_ros_surface.so" />
+					<Add library="/opt/ros/indigo/lib/libpcl_ros_tf.so" />
+					<Add library="/opt/ros/indigo/lib/libpluginlib_tutorials.so" />
+					<Add library="/opt/ros/indigo/lib/libpointcloud_filters.so" />
+					<Add library="/opt/ros/indigo/lib/libpolled_camera.so" />
+					<Add library="/opt/ros/indigo/lib/libqt_gui_cpp.so" />
+					<Add library="/opt/ros/indigo/lib/librandom_numbers.so" />
+					<Add library="/opt/ros/indigo/lib/libresource_retriever.so" />
+					<Add library="/opt/ros/indigo/lib/librobot_state_publisher_solver.so" />
+					<Add library="/opt/ros/indigo/lib/librosbag.so" />
+					<Add library="/opt/ros/indigo/lib/librosbag_storage.so" />
+					<Add library="/opt/ros/indigo/lib/librosconsole.so" />
+					<Add library="/opt/ros/indigo/lib/librosconsole_backend_interface.so" />
+					<Add library="/opt/ros/indigo/lib/librosconsole_bridge.so" />
+					<Add library="/opt/ros/indigo/lib/librosconsole_log4cxx.so" />
+					<Add library="/opt/ros/indigo/lib/libroscpp.so" />
+					<Add library="/opt/ros/indigo/lib/libroscpp_serialization.so" />
+					<Add library="/opt/ros/indigo/lib/libroslib.so" />
+					<Add library="/opt/ros/indigo/lib/libroslz4.so" />
+					<Add library="/opt/ros/indigo/lib/librospack.so" />
+					<Add library="/opt/ros/indigo/lib/librostime.so" />
+					<Add library="/opt/ros/indigo/lib/librqt_gui_cpp.so" />
+					<Add library="/opt/ros/indigo/lib/librqt_image_view.so" />
+					<Add library="/opt/ros/indigo/lib/librqt_rviz.so" />
+					<Add library="/opt/ros/indigo/lib/librviz.so" />
+					<Add library="/opt/ros/indigo/lib/librviz_plugin_tutorials.so" />
+					<Add library="/opt/ros/indigo/lib/libshape_tools.so" />
+					<Add library="/opt/ros/indigo/lib/libstage.so" />
+					<Add library="/opt/ros/indigo/lib/libstereo_image_proc.so" />
+					<Add library="/opt/ros/indigo/lib/libtf.so" />
+					<Add library="/opt/ros/indigo/lib/libtf2.so" />
+					<Add library="/opt/ros/indigo/lib/libtf2_ros.so" />
+					<Add library="/opt/ros/indigo/lib/libtf_conversions.so" />
+					<Add library="/opt/ros/indigo/lib/libtheora_image_transport.so" />
+					<Add library="/opt/ros/indigo/lib/libtopic_tools.so" />
+					<Add library="/opt/ros/indigo/lib/libtransfer_function.so" />
+					<Add library="/opt/ros/indigo/lib/liburdf.so" />
+					<Add library="/opt/ros/indigo/lib/libvision_reconfigure.so" />
+					<Add library="/opt/ros/indigo/lib/libxmlrpcpp.so" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="include/line_detect/global.h" />
+		<Unit filename="include/line_detect/linefinder.h" />
+		<Unit filename="src/front_left_global.cpp" />
+		<Unit filename="src/main_lineDetect_front.cpp" />
+		<Unit filename="src/main_lineDetect_left.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<DoxyBlocks>
+				<comment_style block="0" line="1" />
+				<doxyfile_project output_language="Chinese" />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

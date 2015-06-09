@@ -1,0 +1,8 @@
+<launch>
+
+    <node pkg="test_serial" type="send_cmd_vel_node" name="from_bar" output="screen"/>
+
+</launch>
+
+
+

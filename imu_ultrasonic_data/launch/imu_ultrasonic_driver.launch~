@@ -1,0 +1,12 @@
+<launch>
+
+  <node pkg="IMU_ultrasonic_data" type="IMU_ultrasonic_data_node" name="IMU_ultrasonic_data_node" output="screen">
+
+    <param name="ultrasonic_port" type="string" value="/dev/ttyUSB2"/>
+
+  </node>
+
+</launch>
+
+
+
