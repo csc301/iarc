@@ -1,0 +1,184 @@
+#ifndef muiltobject_H
+#define muiltobject_H
+
+#include <iostream>
+#include <ros/ros.h>
+#include <sensor_msgs/Image.h>
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/RegionOfInterest.h>
+#include <sensor_msgs/CameraInfo.h>
+#include <sensor_msgs/image_encodings.h>
+#include <std_msgs/UInt16MultiArray.h>
+#include <geometry_msgs/Polygon.h>
+#include "muilt_object/RoiArray.h" 
+#include <opencv2/opencv.hpp>
+
+#include <opencv2/core/core.hpp>   //maybe removeable
+#include <opencv2/core/mat.hpp>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/nonfree/nonfree.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/gpu/gpu.hpp>
+#include <opencv2/video/video.hpp>
+
+#include <std_msgs/Header.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+using namespace cv;
+
+class muiltobject
+{
+   public:
+      muiltobject(ros::NodeHandle nh,ros::NodeHandle nh_private);
+      virtual ~muiltobject();
+
+   private:
+      ros::NodeHandle nh_;
+      ros::NodeHandle nh_private_;
+      ros::Subscriber image_subsciber;
+      ros::Publisher  rois_publisher;
+
+      cv_bridge::CvImagePtr cv_ptr;
+      sensor_msgs::RegionOfInterest rois_msg;
+      muilt_object::RoiArray roi_arr;
+
+      Mat frame_raw;
+      Mat frame_new;
+      vector<Mat> mv,vv;
+      vector< vector<Point> > contours;
+      Mat hsv,hue,sa,ss,va,vva,HSV,haha;
+
+      void getSizeContours( vector<vector<Point> >& con);
+      void image_subcallback(const sensor_msgs::Image::ConstPtr& msg);
+
+};
+
+muiltobject::muiltobject(ros::NodeHandle nh,ros::NodeHandle nh_private):
+nh_(nh),
+nh_private_(nh_private)
+{
+  ROS_INFO("Starting muiltobject!");
+
+  image_subsciber = nh_.subscribe("/image_raw", 100, &muiltobject::image_subcallback,this);
+  rois_publisher = nh_.advertise<muilt_object::RoiArray>("rois_list",100);
+
+  ros::Rate loop_rate(20);
+  namedWindow("image_rect_color",CV_WINDOW_AUTOSIZE);
+  moveWindow("image_rect_color",0,0);
+  namedWindow("image_rect_color_binary",CV_WINDOW_AUTOSIZE);
+  moveWindow("image_rect_color_binary",700,0);
+  int max_thresh = 255;
+  int thresh_red = 100;
+  int thresh_green = 50;
+  while(ros::ok())
+  {
+    if(!frame_raw.data)
+    {
+      ros::spinOnce();
+      loop_rate.sleep();
+      ROS_INFO("FRAME IS EMPTY!!!!");
+      continue;
+    }
+    else
+    {
+      imshow("image_rect_color",frame_raw);
+      waitKey(30);
+      cv::Mat_<cv::Vec3b>::iterator it = frame_new.begin<cv::Vec3b>();   //初始位置迭代器
+      cv::Mat_<cv::Vec3b>::iterator itend = frame_new.end<cv::Vec3b>();  //终止位置迭代器
+
+      for(;it!=itend;++it)
+      {
+         if( ((*it)[1]>(0.5*((*it)[0]+(*it)[2])+thresh_green)) && ((*it)[1]>((*it)[0]+thresh_green-10)) && ((*it)[1]>((*it)[2]+thresh_green-10)) )   
+           {                                                                                            //BGR GGG  fornight 90 60 60  120 100 100
+             (*it)[0]=255;
+	     (*it)[1]=0;
+	     (*it)[2]=0;
+           } 
+          else if( (*it)[2]>(0.5*((*it)[0]+(*it)[1])+thresh_red) && ((*it)[2]>((*it)[0]+thresh_red-10)) && ((*it)[2]>((*it)[1]+thresh_red-10)) )    
+           {                                                                                            //BGR  RRR forsun 70 60 60 90 80 80
+             (*it)[0]=255;                                                                              //sunday everychannel value is big
+	     (*it)[1]=0;
+	     (*it)[2]=0;
+           } 
+          else
+	   {
+	     (*it)[0]=0;
+	     (*it)[1]=0;
+	     (*it)[2]=0;	    
+	   }     
+       }
+      split(frame_new,mv);
+      Mat binary;
+      mv[0].copyTo(binary);
+      findContours(mv[0], contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);  //会改变mv[0],连通区域判断
+      getSizeContours(contours);                                              //大小过滤
+      cout << contours.size() <<endl;
+      //Mat result(mv[0].size(), CV_8U, Scalar(255));  
+      //drawContours(mv[0], contours, i, Scalar(255), 2);   
+      for(int i=0;i<contours.size();i++)
+        {
+          Rect r = boundingRect(Mat(contours[i]));                       //长方形包络
+	  rois_msg.x_offset=r.x;
+	  rois_msg.y_offset=r.y;
+	  rois_msg.height=r.height;
+	  rois_msg.width=r.width;
+          //cout << r.x <<" "<< r.y <<" "<< r.width <<" "<< r.height <<endl;
+          roi_arr.list.push_back(rois_msg);
+          drawContours(binary, contours, i, Scalar(155), 2);      // -1 表示所有轮廓    //255白色  
+          rectangle(binary,r,Scalar(255),2);   
+        }
+   
+      imshow("image_rect_color_binary",binary);  //BGR  
+
+      createTrackbar( " Threshold_green:", "image_rect_color_binary", &thresh_green, max_thresh, NULL );
+      createTrackbar( " Threshold_red:", "image_rect_color_binary", &thresh_red, max_thresh, NULL );
+
+      rois_publisher.publish(roi_arr);
+      roi_arr.list.clear();
+
+      ros::spinOnce();
+      loop_rate.sleep();
+    }
+  }
+}
+
+
+muiltobject::~muiltobject()
+{  
+  ROS_INFO("Destroying muiltobject!");
+  destroyAllWindows();     
+}
+
+void muiltobject::image_subcallback(const sensor_msgs::Image::ConstPtr& msg)
+{
+  cv_ptr = cv_bridge::toCvCopy(msg,sensor_msgs::image_encodings::BGR8);
+  cv_ptr->image.copyTo(frame_raw);
+  frame_raw.copyTo(frame_new); 
+}
+
+void muiltobject::getSizeContours(vector< vector<Point> >& con)
+{  
+    int cmin = 60;   // 最小轮廓长度  
+    int cmax = 1800;   // 最大轮廓长度  
+    vector< vector<Point> >::iterator itc = con.begin();   //嵌套模板要把尖括号分开
+    while(itc != con.end())  
+    {  
+        if((itc->size()) < cmin || (itc->size()) > cmax)  
+        {  
+           itc = con.erase(itc);  
+        }  
+        else ++ itc;  
+    }  
+}  
+
+
+
+
+
+#endif

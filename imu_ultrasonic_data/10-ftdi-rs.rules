@@ -1,0 +1,3 @@
+    ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A4004fs5", RUN+="/bin/sh -c 'echo $kernel > /sys/bus/usb/drivers/ftdi_sio/unbind'"
+    ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A4004fs5", RUN+="/bin/sh -c 'echo $kernel > /sys/bus/usb/drivers/usbserial/unbind'"
+    SUBSYSTEM=="usb", ATTRS{idVendor}=="0403",GROUP="dialout"

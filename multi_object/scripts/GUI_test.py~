@@ -1,0 +1,190 @@
+
+'''
+This is a simulation for Mission 7.
+Author: Zhonglei Wang
+Email: wangzhonglei.zju@gmail.com
+'''
+
+import Image as im
+import ImageTk as imK
+from Tkinter import *
+import math,time,random,threading
+import numpy as np
+
+ground_red=im.open('ground_red.png')
+ground_g=im.open('ground_g.png')
+kind={'r':ground_red,'g':ground_g}
+        
+class ground_robot:
+    def __init__(self,x,y,theta,color,interval,tags,lock):
+        self.x=x
+        self.y=y
+        self.theta=theta
+        self.tags=tags
+        self.interval = interval
+        self.color=color
+        self.velocity=0.01*0.7
+        self.deltax=0
+        self.deltay=0
+        self.collide_flag=0
+        self.e=lock
+        self.start_timer()
+
+    def start_timer(self): 
+        self.stop_timer() 
+        self._timer = threading.Timer(self.interval, self._run) 
+        self._timer.setDaemon(True)
+        self._timer.start()
+
+    def restart_timer(self):
+        self._timer.cancel()
+        del self._timer
+        self.start_timer()
+
+    def stop_timer(self): 
+        if self.__dict__.has_key("_timer"): 
+            self._timer.cancel() 
+            del self._timer
+
+    def _run(self):
+        #!!!this is a bad pause method. we need a better solution, maybe changing Timer() method is needed!!!
+        if self.e.isSet():
+            self.theta=self.theta+random.randint(-360,360)
+        self.e.wait()
+        self.restart_timer()
+
+    def update_pic(self):
+        '''update the ground robot picture to show'''
+        self.pic=imK.PhotoImage(kind[self.color].rotate(self.theta))
+        return self.pic
+
+    def move(self):
+        '''update the ground robot position'''
+        self.x=self.x+self.deltax
+        self.y=self.y+self.deltay
+
+    def update_vel(self):
+        '''update the velocity'''
+        self.deltax=self.velocity*math.cos(math.radians(self.theta))
+        self.deltay=-self.velocity*math.sin(math.radians(self.theta))
+
+    def cross_boundary(self):
+        '''determine whether crossing the boundary'''
+        if self.x<0 or self.x>19:
+            return 1
+        elif self.y<0 or self.y>19:
+            return 1
+        else:
+            return 0
+
+    def collide(self,other):
+        '''collision with other happens or not'''
+        if abs(other.x-self.x)<0.5 and abs(other.y-self.y)<0.5:
+            self.theta=self.theta+180
+            other.theta=other.theta+180
+            self.restart_timer()
+            other.restart_timer()
+        
+        
+
+class App(Frame):
+    def __init__(self,master):
+        Frame.__init__(self, master,height='20c',width='30c')
+        self.pack()
+        self.count=0
+
+        self.l=[]
+        
+        #load images
+        self.avenue_img=PhotoImage(file=r"avenue.gif")
+
+        #thread lock
+        self.e=threading.Event()
+        
+        #generate the original avenue and ground robot list
+        self.ground_robo_list=[]
+        self.canvas=Canvas(self,height='19c',width='19c',bg='grey')
+        self.canvas.bind('<Button-1>', self.__changeDirect)
+        self.canvas.create_image('9.5c','9.5c',image=self.avenue_img)
+        for i in xrange(0,10):
+            x=9.5+math.cos(math.radians(36*i))
+            y=9.5-math.sin(math.radians(36*i))
+            if i<5:
+                self.ground_robo_list.append(ground_robo(x,y,36*i,'r',10,"robot%d"%i, self.e))
+                self.canvas.create_image("%rc"%x,"%rc"%y,image=self.ground_robo_list[i].update_pic(),tag="robot%d"%i)                
+            else:
+                self.ground_robo_list.append(ground_robo(x,y,36*i,'g',10,"robot%d"%i, self.e))
+                self.canvas.create_image("%rc"%x,"%rc"%y,image=self.ground_robo_list[i].update_pic(),tag="robot%d"%i)
+        self.canvas.pack(side=LEFT,fill=Y)
+        
+        #generate 'Start' button
+        self.start_b=Button(self,text='Start',command=self.start)
+        self.start_b.pack(side=RIGHT,fill=Y)
+
+
+        #generate 'Stop' button
+        self.stop_b=Button(self,text="Stop",command=self.stop)
+        self.stop_b.pack(side=RIGHT,fill=Y)
+
+        self._start_thread()
+
+    def _mainloop(self):
+        for i in self.ground_robo_list:
+            i.update_vel()
+        while True:
+            self.e.wait()
+            self.l.append([])
+            for i in xrange(len(self.ground_robo_list)-1,-1,-1):
+                for j in xrange(0,i):
+                    self.ground_robo_list[i].collide(self.ground_robo_list[j])
+                self.ground_robo_list[i].update_vel()
+                self.ground_robo_list[i].move()
+                self.l[self.count].append(self.ground_robo_list[i].x)
+                self.l[self.count].append(self.ground_robo_list[i].y)
+                if self.ground_robo_list[i].cross_boundary()==1:
+                    #self.canvas.delete(self.ground_robo_list[i].tags)
+                    self.ground_robo_list[i].velocity=0
+                    #self.ground_robo_list[i].stop_timer()
+                    #del self.ground_robo_list[i]
+                    continue
+                self.canvas.delete(self.ground_robo_list[i].tags)
+                self.canvas.create_image("%rc"%self.ground_robo_list[i].x,"%rc"%self.ground_robo_list[i].y,image=self.ground_robo_list[i].update_pic(),tag=self.ground_robo_list[i].tags)
+                self.canvas.update()                
+            self.count+=1
+            time.sleep(0.01)
+
+
+    def _start_thread(self):
+        start_main=threading.Thread(target=self._mainloop)
+        start_main.setDaemon(True) #well, this daemon thread setting seems meaningless
+        start_main.start()
+
+    def start(self):
+        '''start thread
+        '''
+        for robot in self.ground_robo_list:
+            robot.e.set()
+        self.e.set()
+
+
+    def stop(self):
+        '''stop thread
+        '''
+        for robot in self.ground_robo_list:
+            robot.e.clear()
+        self.e.clear()
+
+    def __changeDirect(self, event):
+        x=event.x/722.0*19
+        y=event.y/722.0*19
+        for robot in self.ground_robo_list:
+            if abs(robot.x-x)<0.272 and abs(robot.y-y)<0.272:
+                robot.theta=robot.theta+180
+                robot.restart_timer()
+        
+            
+
+root=Tk()
+root.title('Mission 7')
+app=App(root)
+root.mainloop()
