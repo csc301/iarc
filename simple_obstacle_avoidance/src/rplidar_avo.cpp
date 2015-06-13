@@ -69,7 +69,7 @@ void laser_scan_callback(const sensor_msgs::LaserScan laser)
 	       }
              }  
             
-             //cout <<min_range<<" "<<min_range_angle<<endl;
+             cout <<min_range<<" "<<min_range_angle<<endl;
 
              if(filter_ranges[min_range_angle]<AVO_THRE)
              {

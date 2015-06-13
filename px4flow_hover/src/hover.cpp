@@ -8,7 +8,7 @@
 #include <px_comm/OpticalFlow.h>
 #include <px4flow_hover/hover_srv.h>
 #include "std_msgs/Bool.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <list>
 #define MaX  1000
@@ -20,8 +20,8 @@ bool avo_flag = false;
 float sum_x,sum_y,vx,vy,height,height_last,out_z;
 float psf,dsf,pvf,vx_ref,vy_ref,sum_x_ref,sum_y_ref,out_x,out_y;
 double dt=0,sum_dt=0;
-int quality_value,reset=0,point_flag=0,hover_flag=0,given_height=50;
-int ps=200,ds=130,pv=300,out_threshold=70,v_max=3,hp = 60,hd = 40;
+int quality_value,reset=0,point_flag=0,hover_flag=0,given_height=60;
+int ps=200,ds=130,pv=300,out_threshold=70,v_max=3,hp = 80,hd = 50;
 ros::Time  t_now,t_last;
 ros::Publisher path_publisher,point_publisher,hover_publisher;
 ros::ServiceServer hover_srv;
@@ -60,6 +60,7 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
               sum_x_ref=0;
               sum_y_ref=0;
               sum_dt=0;
+              path_msg.poses.clear();
        }
 
        psf = float(ps/100.0);
@@ -86,7 +87,7 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
 
             out_z = hp*((given_height+100.0)*0.01-height)-hd*(height-height_last);
             height_last = height;
-            if(out_z>50)out_z=50;
+            if(out_z>55)out_z=55;
             if(out_z<-50)out_z=-50;
             if(out_z<0)out_z-=15;
             hover_cmd.linear.z = int(out_z);
@@ -102,7 +103,7 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
 
              out_z = hp*((given_height+100.0)*0.01-height)-hd*(height-height_last);
              height_last = height;
-             if(out_z>50)out_z=50;
+             if(out_z>55)out_z=55;
              if(out_z<-50)out_z=-50;
              if(out_z<0)out_z-=15;
              hover_cmd.linear.z = int(out_z);
@@ -117,11 +118,24 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
               sum_y_ref=sum_y;
        }
 
-       point_msg.header.frame_id = "my_frame";
+       point_msg.header.frame_id = "map";
 
        point_msg.point.x = sum_x;
        point_msg.point.y = sum_y;
        point_msg.point.z = height;
+
+       path_msg.header.frame_id = "map";
+       pose_msg.pose.position.x = sum_x;
+       pose_msg.pose.position.y = sum_y;
+       pose_msg.pose.position.z = height;
+
+       //pose_msg.pose.orientation.x = 1;
+       //pose_msg.pose.orientation.y = 0;
+       //pose_msg.pose.orientation.z = 0;
+       //pose_msg.pose.orientation.w = 0;
+
+       path_msg.poses.push_back(pose_msg);
+       path_publisher.publish(path_msg);
 
        point_flag++;
        if(point_flag == 15)
@@ -146,7 +160,7 @@ int main(int argc,char **argv)
     ros::Subscriber px4flow_sub = n.subscribe("/px4flow/opt_flow", 100, opt_flow_callback);
     ros::Subscriber avo_flag_sub = n.subscribe("/obstacle_avoid_flag", 100, avo_flag_callback);
 
-    //path_publisher = n.advertise<nav_msgs::Path>("uav_path",100);
+    path_publisher = n.advertise<nav_msgs::Path>("uav_path",100);
     point_publisher = n.advertise<geometry_msgs::PointStamped>("uav_point",100);
     hover_publisher = n.advertise<geometry_msgs::Twist>("hover_cmd",100);
 

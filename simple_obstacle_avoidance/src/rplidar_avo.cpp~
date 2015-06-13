@@ -101,11 +101,11 @@ void laser_scan_callback(const sensor_msgs::LaserScan laser)
         min_range=AVO_THRE;
 }
 
-bool avo_srv_callback(simple_obstacle_avoidance::avo_srv::Request &req , simple_obstacle_avoidance::avo_srv::Response &resp)
+/*bool avo_srv_callback(simple_obstacle_avoidance::avo_srv::Request &req , simple_obstacle_avoidance::avo_srv::Response &resp)
 {
     resp.avo_action = action;
     return true;
-}
+}*/
 
 int main(int argc, char **argv)
 {	 	
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 	
 	ros::Subscriber hokuyo_sub = n.subscribe("/scan", 10, laser_scan_callback);
 
-       ros::ServiceServer avo_srv = n.advertiseService("/avo_srv", avo_srv_callback);
+       //ros::ServiceServer avo_srv = n.advertiseService("/avo_srv", avo_srv_callback);
 
  	ros::spin();
   	return 0;
