@@ -9,8 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  simple_obstacle_avoidance
-  px4flow_hover
+  px_comm
+  OpenCV
 )
 
 ## System dependencies are found with CMake's conventions
@@ -86,7 +86,7 @@ catkin_package(
 
  # INCLUDE_DIRS include
 
-  CATKIN_DEPENDS roscpp std_msgs geometry_msgs   simple_obstacle_avoidance   px4flow_hover
+  CATKIN_DEPENDS roscpp std_msgs geometry_msgs 
 #  LIBRARIES decision
 #  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs
 #  DEPENDS system_lib
@@ -118,6 +118,7 @@ include_directories(
 ## Specify libraries to link a library or executable target against
  target_link_libraries(decision_node
    ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
  )
 
 #############

@@ -13,14 +13,6 @@
 #include "multi_object/RoiArray.h" 
 #include <opencv2/opencv.hpp>
 
-#include <opencv2/core/core.hpp>   //maybe removeable
-#include <opencv2/core/mat.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/gpu/gpu.hpp>
-#include <opencv2/video/video.hpp>
-
 #include <std_msgs/Header.h>
 
 #include <stdio.h>
@@ -40,7 +32,7 @@ class multi_object_
    private:
       ros::NodeHandle nh_;
       ros::Subscriber image_subsciber;
-      ros::Publisher  rois_publisher;
+      ros::Publisher  rois_publisher,roi_publisher;
 
       cv_bridge::CvImagePtr cv_ptr;
       sensor_msgs::RegionOfInterest rois_msg;
@@ -63,9 +55,10 @@ nh_(nh)
 
   std::string camera_topic;
     if (!nh_.getParam ("from_camera/camera_topic_name", camera_topic))  
-      camera_topic = "/image_raw";
+      camera_topic = "/usb_camera/image_raw";
   image_subsciber = nh_.subscribe(camera_topic.c_str(), 100, &multi_object_::image_subcallback,this);
   rois_publisher = nh_.advertise<multi_object::RoiArray>("rois_list",100);
+  roi_publisher = nh_.advertise<sensor_msgs::RegionOfInterest>("sigle_roi",100);
 
   ros::Rate loop_rate(30);
   namedWindow("image_rect_color",CV_WINDOW_AUTOSIZE);
@@ -117,7 +110,7 @@ nh_(nh)
       mv[0].copyTo(binary);
       findContours(mv[0], contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);  //会改变mv[0],连通区域判断
       getSizeContours(contours);                                              //大小过滤
-      cout << contours.size() <<endl;
+      //cout << contours.size() <<endl;
       //Mat result(mv[0].size(), CV_8U, Scalar(255));  
       //drawContours(mv[0], contours, i, Scalar(255), 2);   
       for(int i=0;i<contours.size();i++)
@@ -127,7 +120,7 @@ nh_(nh)
 	  rois_msg.y_offset=r.y;
 	  rois_msg.height=r.height;
 	  rois_msg.width=r.width;
-          //cout << r.x <<" "<< r.y <<" "<< r.width <<" "<< r.height <<endl;
+          cout << r.x <<" "<< r.y <<" "<< r.width <<" "<< r.height <<endl;
           roi_arr.list.push_back(rois_msg);
           drawContours(binary, contours, i, Scalar(155), 2);      // -1 表示所有轮廓    //255白色  
           rectangle(binary,r,Scalar(255),2);   
@@ -138,6 +131,7 @@ nh_(nh)
       createTrackbar( " Threshold_green:", "image_rect_color_binary", &thresh_green, max_thresh, NULL );
       createTrackbar( " Threshold_red:", "image_rect_color_binary", &thresh_red, max_thresh, NULL );
 
+      roi_publisher.publish(rois_msg);
       rois_publisher.publish(roi_arr);
       roi_arr.list.clear();
 

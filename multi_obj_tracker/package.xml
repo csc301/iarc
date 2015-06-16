@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>multi_object</name>
+  <name>multi_obj_tracker</name>
   <version>0.0.0</version>
-  <description>The multi_object package</description>
+  <description>The multi_obj_tracker package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/multi_object</url> -->
+  <!-- <url type="website">http://wiki.ros.org/multi_obj_tracker</url> -->
 
 
   <!-- Author tags are optional, mutiple are allowed, one per tag -->
@@ -41,28 +41,23 @@
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>OpenCV</build_depend>
-  <build_depend>cv_bridge</build_depend>
   <build_depend>geometry_msgs</build_depend>
-  <build_depend>image_transport</build_depend>
-  <build_depend>message_generation</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
-  <build_depend>std_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>px_comm</build_depend>
 
 
 
-  <run_depend>OpenCV</run_depend>
-  <run_depend>cv_bridge</run_depend>
   <run_depend>geometry_msgs</run_depend>
-  <run_depend>image_transport</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
-  <run_depend>std_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
-
+  <run_depend>std_msgs</run_depend>
   <run_depend>message_generation</run_depend>
+  <run_depend>px_comm</run_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
