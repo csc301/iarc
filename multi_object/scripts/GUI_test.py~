@@ -6,7 +6,8 @@ Email: wangzhonglei.zju@gmail.com
 '''
 
 import Image as im
-import ImageTk as imK
+import PIL.ImageTk as imK
+#from PIL.ImageTk import *
 from Tkinter import *
 import math,time,random,threading
 import numpy as np
@@ -15,7 +16,7 @@ ground_red=im.open('ground_red.png')
 ground_g=im.open('ground_g.png')
 kind={'r':ground_red,'g':ground_g}
         
-class ground_robot:
+class ground_robo:
     def __init__(self,x,y,theta,color,interval,tags,lock):
         self.x=x
         self.y=y

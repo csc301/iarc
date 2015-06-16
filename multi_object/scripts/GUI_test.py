@@ -7,6 +7,7 @@ Email: wangzhonglei.zju@gmail.com
 
 import Image as im
 import ImageTk as imK
+#from PIL.ImageTk import *
 from Tkinter import *
 import math,time,random,threading
 import numpy as np

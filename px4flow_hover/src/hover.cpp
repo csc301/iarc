@@ -20,8 +20,8 @@ bool avo_flag = false;
 float sum_x,sum_y,vx,vy,height,height_last,out_z;
 float psf,dsf,pvf,vx_ref,vy_ref,sum_x_ref,sum_y_ref,out_x,out_y;
 double dt=0,sum_dt=0;
-int quality_value,reset=0,point_flag=0,hover_flag=0,given_height=60;
-int ps=200,ds=130,pv=300,out_threshold=70,v_max=3,hp = 80,hd = 50;
+int quality_value,reset=0,point_flag=0,hover_flag=0;
+int ps=200,ds=130,pv=300,out_threshold=70,v_max=3;
 ros::Time  t_now,t_last;
 ros::Publisher path_publisher,point_publisher,hover_publisher;
 ros::ServiceServer hover_srv;
@@ -85,12 +85,6 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
             hover_cmd.linear.x = int(out_x);
             hover_cmd.linear.y = int(out_y);
 
-            out_z = hp*((given_height+100.0)*0.01-height)-hd*(height-height_last);
-            height_last = height;
-            if(out_z>55)out_z=55;
-            if(out_z<-50)out_z=-50;
-            if(out_z<0)out_z-=15;
-            hover_cmd.linear.z = int(out_z);
             hover_publisher.publish(hover_cmd);          
        }
        else
@@ -101,12 +95,6 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
               hover_cmd.linear.x = 0;
               hover_cmd.linear.y = 0;
 
-             out_z = hp*((given_height+100.0)*0.01-height)-hd*(height-height_last);
-             height_last = height;
-             if(out_z>55)out_z=55;
-             if(out_z<-50)out_z=-50;
-             if(out_z<0)out_z-=15;
-             hover_cmd.linear.z = int(out_z);
              hover_publisher.publish(hover_cmd);
              //cout << out_z <<endl;
 
@@ -173,9 +161,7 @@ int main(int argc,char **argv)
     createTrackbar( " pv:", "uav_path_parameter_tuning", &pv, MaX, NULL );
     createTrackbar( "threshold:", "uav_path_parameter_tuning", &out_threshold, 100, NULL );
     createTrackbar( "v_max:", "uav_path_parameter_tuning", &v_max, 6, NULL );
-    createTrackbar( "given_height:", "uav_path_parameter_tuning", &given_height, 100, NULL );
-    createTrackbar( "hp:", "uav_path_parameter_tuning", &hp, 150, NULL );
-    createTrackbar( "hd:", "uav_path_parameter_tuning", &hd, 100, NULL );
+
     ros::spin();
     return 0;
 }
