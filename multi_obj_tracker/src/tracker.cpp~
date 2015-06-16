@@ -12,7 +12,6 @@ geometry_msgs::Twist tracker_cmd;
 ros::Publisher tracker_publisher;
 float height;
 float vx,vy,error_x,error_y,out_x,out_y;
-int tracker_flag=0;
 
 void height_callback(const px_comm::OpticalFlow::ConstPtr& msg)
 {
@@ -29,7 +28,7 @@ void roi_callback(const sensor_msgs::RegionOfInterest::ConstPtr& msg)
             out_x = 30 * (20 *error_x- 13*vx);
             out_y = 30 * (20 *error_y - 13*vy);
  
-            cout << error_x <<" "<< error_y << "   "<< out_x << out_y  <<endl;
+            //cout << error_x <<" "<< error_y << "   "<< out_x << out_y  <<endl;
 
             if(out_x>out_threshold)out_x=out_threshold;
             if(out_x<-1*out_threshold)out_x=-1*out_threshold;
@@ -40,7 +39,6 @@ void roi_callback(const sensor_msgs::RegionOfInterest::ConstPtr& msg)
 
             tracker_cmd.angular.x = true;
             tracker_publisher.publish(tracker_cmd);
-            tracker_flag=0;
 }
 
 int main(int argc, char **argv)
@@ -54,13 +52,6 @@ int main(int argc, char **argv)
              ros::Rate loop_rate(250);
              while(ros::ok())
              {
-                 tracker_flag++;
-                 if(tracker_flag>150)
-                 {
-                  tracker_flag=300;
-                  tracker_cmd.angular.x = false;
-                  tracker_publisher.publish(tracker_cmd);
-                 }
                  ros::spinOnce();      
                  loop_rate.sleep();
               }

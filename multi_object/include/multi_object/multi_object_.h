@@ -70,6 +70,7 @@ nh_(nh)
   int thresh_green = 50;
   while(ros::ok())
   {
+    ros::spinOnce();
     if(!frame_raw.data)
     {
       ros::spinOnce();
@@ -120,7 +121,8 @@ nh_(nh)
 	  rois_msg.y_offset=r.y;
 	  rois_msg.height=r.height;
 	  rois_msg.width=r.width;
-          cout << r.x <<" "<< r.y <<" "<< r.width <<" "<< r.height <<endl;
+          //////////cout << r.x <<" "<< r.y <<" "<< r.width <<" "<< r.height <<endl;
+      roi_publisher.publish(rois_msg);
           roi_arr.list.push_back(rois_msg);
           drawContours(binary, contours, i, Scalar(155), 2);      // -1 表示所有轮廓    //255白色  
           rectangle(binary,r,Scalar(255),2);   
@@ -131,11 +133,9 @@ nh_(nh)
       createTrackbar( " Threshold_green:", "image_rect_color_binary", &thresh_green, max_thresh, NULL );
       createTrackbar( " Threshold_red:", "image_rect_color_binary", &thresh_red, max_thresh, NULL );
 
-      roi_publisher.publish(rois_msg);
       rois_publisher.publish(roi_arr);
       roi_arr.list.clear();
 
-      ros::spinOnce();
       loop_rate.sleep();
     }
   }

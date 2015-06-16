@@ -21,8 +21,8 @@
  </node>
 
    <!--arg name="ros_namespace" default="ardrone/front" /-->
-   <arg name="ros_namespace" default="usb_camera"/>
+   <!--arg name="ros_namespace" default="usb_camera"/>
 
- <node ns="$(arg ros_namespace)" pkg="image_proc" type="image_proc" name="image_proc" output="screen"/>
+ <node ns="$(arg ros_namespace)" pkg="image_proc" type="image_proc" name="image_proc" output="screen"/-->
 
 </launch>

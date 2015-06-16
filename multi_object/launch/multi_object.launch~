@@ -2,7 +2,7 @@
 
     <include file="$(find uvc_camera)/launch/camera_node.launch" />
 
-  <node pkg="multi_object" type="multi_object_node" name="multi_object_identify" output="screen">
+  <node pkg="multi_object" type="multi_object_node" name="multi_object_node" output="screen">
     <param name="camera_topic_name" type="string" value="/usb_camera/image_raw"/>
   </node>
 

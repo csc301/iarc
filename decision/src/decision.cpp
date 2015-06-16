@@ -13,6 +13,8 @@ ros::Publisher decision_publisher;
 float out_z,height,height_last;
 int given_height=60,hp = 80,hd = 50;
 
+int avo_flag=0,tracker_flag=0;
+
 void hover_cmd_callback(const geometry_msgs::Twist msgforhover)
 {
   hover_msg=msgforhover;
@@ -21,11 +23,13 @@ void hover_cmd_callback(const geometry_msgs::Twist msgforhover)
 void avo_cmd_callback(const geometry_msgs::Twist msgforavo)
 {
   avo_msg =msgforavo;
+  avo_flag=0;
 }
 
 void tracker_cmd_callback(const geometry_msgs::Twist msgfortracker)
 {
   tracker_msg =msgfortracker;
+  tracker_flag=0;
 }
 
 void height_callback(const px_comm::OpticalFlow::ConstPtr& msg)
@@ -53,8 +57,6 @@ int main(int argc,char **argv)
     ros::Rate loop_rate(250);
     while(ros::ok())
     {
-       ros::spinOnce();
-
        out_z = hp*((given_height+100.0)*0.01-height)-hd*(height-height_last);
        height_last = height;
        if(out_z>55)out_z=55;
@@ -65,6 +67,20 @@ int main(int argc,char **argv)
        tracker_msg.linear.z = int(out_z);
        hover_msg.linear.z = int(out_z);
       
+       avo_flag++;
+       if (avo_flag>150)
+       {
+         avo_flag=150;
+         avo_msg.angular.x=0;
+       }
+
+       tracker_flag++;
+       if (tracker_flag>150)
+       {
+         tracker_flag=150;
+         tracker_msg.angular.x=0;
+       }
+
         if(avo_msg.angular.x==1)
         {
           decision_publisher.publish(avo_msg);
@@ -80,6 +96,8 @@ int main(int argc,char **argv)
            decision_publisher.publish(hover_msg);
            cout<<"hover"<< endl;        
         }
+
+       ros::spinOnce();
        loop_rate.sleep();
        waitKey(1); 
     }
