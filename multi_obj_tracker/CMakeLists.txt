@@ -4,6 +4,7 @@ project(multi_obj_tracker)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(OpenCV REQUIRED)
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
@@ -118,6 +119,7 @@ include_directories(
 ## Specify libraries to link a library or executable target against
  target_link_libraries(tracker_node
    ${catkin_LIBRARIES}
+   ${OpenCV_LIBS}
  )
 
 

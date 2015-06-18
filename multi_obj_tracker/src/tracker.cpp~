@@ -1,17 +1,24 @@
 #include "ros/ros.h"
 #include "std_msgs/Bool.h"
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include "sensor_msgs/RegionOfInterest.h"
 #include "geometry_msgs/Twist.h"
 #include <px_comm/OpticalFlow.h>
 #include <iostream>
-#define FOCUS 121
-#define out_threshold  70
+#define FOCUS 400
+#define MaX  1000
+#define out_threshold 80
 using namespace std;
+using namespace cv;
 
 geometry_msgs::Twist tracker_cmd;
 ros::Publisher tracker_publisher;
 float height;
 float vx,vy,error_x,error_y,out_x,out_y;
+int tracker_flag=0;
+int ps=310,ds=280,pv=300;
+float psf,dsf,pvf;
 
 void height_callback(const px_comm::OpticalFlow::ConstPtr& msg)
 {
@@ -22,14 +29,18 @@ void height_callback(const px_comm::OpticalFlow::ConstPtr& msg)
 
 void roi_callback(const sensor_msgs::RegionOfInterest::ConstPtr& msg)
 {
-           error_x = (height/FOCUS)*(240-(msg->y_offset+0.5*msg->height))-0.1;
+           error_x = (height/FOCUS)*(240-(msg->y_offset+0.5*msg->height));
            error_y = (height/FOCUS)*(360-(msg->x_offset+0.5*msg->width));
 
-            out_x = 30 * (20 *error_x- 13*vx);
-            out_y = 30 * (20 *error_y - 13*vy);
- 
-            //cout << error_x <<" "<< error_y << "   "<< out_x << out_y  <<endl;
+             psf = float(ps/100.0);
+             dsf = float(ds/100.0);
+             pvf = float(pv/10.0);
 
+            out_x = pvf  * ( psf *error_x-dsf*vx);
+            out_y = pvf  * (psf*error_y - dsf*vy);
+ 
+            //cout << error_x <<" "<< error_y <<endl;
+            //cout << error_x <<" "<< error_y << "   "<< out_x << out_y  <<endl;
             if(out_x>out_threshold)out_x=out_threshold;
             if(out_x<-1*out_threshold)out_x=-1*out_threshold;
             if(out_y>out_threshold)out_y=out_threshold;
@@ -39,6 +50,7 @@ void roi_callback(const sensor_msgs::RegionOfInterest::ConstPtr& msg)
 
             tracker_cmd.angular.x = true;
             tracker_publisher.publish(tracker_cmd);
+            tracker_flag=0;
 }
 
 int main(int argc, char **argv)
@@ -49,11 +61,25 @@ int main(int argc, char **argv)
              ros::Subscriber  roi_sub = n.subscribe("/sigle_roi",10,roi_callback);
              tracker_publisher = n.advertise<geometry_msgs::Twist>("tracker_cmd",10);
 
+    namedWindow("tracker_parameter_tuning",CV_WINDOW_AUTOSIZE);
+    moveWindow("tracker_parameter_tuning",240,180);
+    createTrackbar( " ps:", "tracker_parameter_tuning", &ps, MaX, NULL );
+    createTrackbar( " ds:", "tracker_parameter_tuning", &ds, MaX, NULL );
+    createTrackbar( " pv:", "tracker_parameter_tuning", &pv, MaX, NULL );
+
              ros::Rate loop_rate(250);
              while(ros::ok())
              {
+                 tracker_flag++;
+                 if(tracker_flag>150)
+                 {
+                  tracker_flag=300;
+                  tracker_cmd.angular.x = false;
+                  tracker_publisher.publish(tracker_cmd);
+                 }
                  ros::spinOnce();      
                  loop_rate.sleep();
+                 waitKey(1); 
               }
 	return 0;
 }

@@ -61,8 +61,8 @@ nh_(nh)
   roi_publisher = nh_.advertise<sensor_msgs::RegionOfInterest>("sigle_roi",100);
 
   ros::Rate loop_rate(30);
-  namedWindow("image_rect_color",CV_WINDOW_AUTOSIZE);
-  moveWindow("image_rect_color",0,0);
+  //namedWindow("image_rect_color",CV_WINDOW_AUTOSIZE);
+  //moveWindow("image_rect_color",0,0);
   namedWindow("image_rect_color_binary",CV_WINDOW_AUTOSIZE);
   moveWindow("image_rect_color_binary",700,0);
   int max_thresh = 255;
@@ -80,7 +80,7 @@ nh_(nh)
     }
     else
     {
-      imshow("image_rect_color",frame_raw);
+      //imshow("image_rect_color",frame_raw);
       waitKey(30);
       cv::Mat_<cv::Vec3b>::iterator it = frame_new.begin<cv::Vec3b>();   //初始位置迭代器
       cv::Mat_<cv::Vec3b>::iterator itend = frame_new.end<cv::Vec3b>();  //终止位置迭代器
