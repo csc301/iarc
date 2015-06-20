@@ -1,2 +1,5 @@
-sudo chmod 777 /dev/ttyUSB0 /dev/ttyACM0 /dev/video0 /dev/ttyUSB1 
+#!/bin/sh -e
 
+sudo chmod 777 /dev/ttyUSB0 /dev/ttyACM0 /dev/video0 
+sudo rmmod ftdi_sio
+sudo chmod 777 /dev/ttyUSB1 
