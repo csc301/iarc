@@ -1,6 +1,7 @@
 <launch>
 
     <include file="$(find cmd_vel_serial)/launch/cmd_vel_serial.launch" />
+    <include file="$(find imu_ultrasonic_data)/launch/imu_ultrasonic_driver.launch" />
 
     <include file="$(find rplidar_ros)/launch/rplidar.launch" />
     <node name="obstacle_avoidance_node" pkg="simple_obstacle_avoidance" type="obstacle_avoidance_node" output="screen" />

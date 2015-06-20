@@ -1,6 +1,7 @@
 <launch>
 
     <include file="$(find cmd_vel_serial)/launch/cmd_vel_serial.launch" />
+    <include file="$(find imu_ultrasonic_data)/launch/imu_ultrasonic_driver.launch" />
 
     <node name="px4flow" pkg="px4flow" type="px4flow_node" output="screen" respawn="true" clear_params="true">
         <rosparam file="$(find px4flow)/launch/px4flow_parameters.yaml"/>
