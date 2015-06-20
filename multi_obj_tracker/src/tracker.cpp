@@ -12,11 +12,12 @@
 using namespace std;
 using namespace cv;
 
+std_msgs::Bool tracker_flag;
 geometry_msgs::Twist tracker_cmd;
-ros::Publisher tracker_publisher;
+ros::Publisher tracker_publisher,tracker_flag_pub;
 float height;
 float vx,vy,error_x,error_y,out_x,out_y;
-int tracker_flag=0;
+int tracker_counter=0;
 int ps=310,ds=280,pv=300;
 float psf,dsf,pvf;
 
@@ -50,6 +51,9 @@ void roi_callback(const sensor_msgs::RegionOfInterest::ConstPtr& msg)
 
             tracker_cmd.angular.x = true;
             tracker_publisher.publish(tracker_cmd);
+            tracker_flag.data=true;
+            tracker_flag_pub.publish(tracker_flag);
+            tracker_counter=0;
 }
 
 int main(int argc, char **argv)
@@ -59,6 +63,7 @@ int main(int argc, char **argv)
 	ros::Subscriber  height_sub = n.subscribe("/px4flow/opt_flow",10,height_callback);
        ros::Subscriber  roi_sub = n.subscribe("/sigle_roi",10,roi_callback);
        tracker_publisher = n.advertise<geometry_msgs::Twist>("tracker_cmd",10);
+       tracker_flag_pub = n.advertise<std_msgs::Bool>("irobot_tracker_flag",10);
 
     namedWindow("tracker_parameter_tuning",WINDOW_NORMAL);  //WINDOW_NORMAL   CV_WINDOW_AUTOSIZE
     moveWindow("tracker_parameter_tuning",240,180);
@@ -69,6 +74,16 @@ int main(int argc, char **argv)
              ros::Rate loop_rate(250);
              while(ros::ok())
              {
+                 tracker_counter++;
+                 if (tracker_counter>150)
+                 {
+                    tracker_counter=0;
+                    tracker_flag.data=false;
+                    tracker_flag_pub.publish(tracker_flag);
+                    tracker_cmd.angular.x = false;
+                    tracker_publisher.publish(tracker_cmd);
+                 }
+
                  ros::spinOnce();      
                  loop_rate.sleep();
                  waitKey(1); 
