@@ -61,9 +61,9 @@ nh_(nh)
   roi_publisher = nh_.advertise<sensor_msgs::RegionOfInterest>("sigle_roi",100);
 
   ros::Rate loop_rate(30);
-  //namedWindow("image_rect_color",CV_WINDOW_AUTOSIZE);
+  //namedWindow("image_rect_color",WINDOW_NORMAL);
   //moveWindow("image_rect_color",0,0);
-  namedWindow("image_rect_color_binary",CV_WINDOW_AUTOSIZE);
+  namedWindow("image_rect_color_binary",WINDOW_NORMAL);
   moveWindow("image_rect_color_binary",700,0);
   int max_thresh = 255;
   int thresh_red = 100;

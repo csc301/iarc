@@ -1,2 +1,0 @@
-sudo chmod 777 /dev/ttyUSB0 /dev/ttyUSB1 /dev/ttyACM0
-

@@ -49,7 +49,7 @@ int main(int argc,char **argv)
     ros::Subscriber tracker_cmd_sub = n.subscribe("/tracker_cmd", 100, tracker_cmd_callback);
     ros::Subscriber  height_sub = n.subscribe("/px4flow/opt_flow",10,height_callback);
 
-    namedWindow( "height_parameter_tuning",CV_WINDOW_AUTOSIZE );
+    namedWindow( "height_parameter_tuning",WINDOW_NORMAL);
     createTrackbar( "given_height:", "height_parameter_tuning", &given_height, 100, NULL );
     createTrackbar( "hp:", "height_parameter_tuning", &hp, 150, NULL );
     createTrackbar( "hd:", "height_parameter_tuning", &hd, 100, NULL );
@@ -70,14 +70,14 @@ int main(int argc,char **argv)
        avo_flag++;
        if (avo_flag>150)
        {
-         avo_flag=150;
+         avo_flag=0;
          avo_msg.angular.x=0;
        }
 
        tracker_flag++;
        if (tracker_flag>150)
        {
-         tracker_flag=150;
+         tracker_flag=0;
          tracker_msg.angular.x=0;
        }
 

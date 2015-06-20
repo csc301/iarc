@@ -15,10 +15,10 @@ using namespace cv;
 
 bool avo_flag = false,time_flag=false;
 float sum_x,sum_y,vx,vy,height;
-float psf,dsf,pvf,vx_ref,vy_ref,sum_x_ref,sum_y_ref,out_x,out_y;
+float psf,dsf,pvf,vx_ref,vy_ref,sum_x_ref=0,sum_y_ref=0,out_x,out_y;
 double dt=0;
 float sum_vx=0,sum_vy=0;  
-int quality_value,reset=0,hover_flag=1;
+int quality_value,reset=0;
 int ps=200,ds=130,pv=300,out_threshold=70,v_max=3;
 ros::Time  t_now,t_last;
 ros::Publisher path_publisher,hover_publisher;
@@ -71,8 +71,6 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
        dsf = float(ds/100.0);
        pvf = float(pv/10.0);
        
-       if(hover_flag == 1)
-       {
             vx_ref = psf * (sum_x_ref - sum_x) - dsf*vx;
             vy_ref = psf * (sum_y_ref - sum_y) - dsf*vy;
             if(vx_ref>v_max)vx_ref=v_max;
@@ -90,16 +88,6 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
             hover_cmd.linear.y = int(out_y);
 
             hover_publisher.publish(hover_cmd);          
-       }
-       else
-       {
-              sum_x_ref=sum_x;
-              sum_y_ref=sum_y;
-              hover_cmd.linear.x = 0;
-              hover_cmd.linear.y = 0;
-
-             hover_publisher.publish(hover_cmd);
-       }
 
        if(avo_flag == true)
        { 
@@ -140,7 +128,6 @@ int main(int argc,char **argv)
     namedWindow("uav_path_parameter_tuning",WINDOW_NORMAL);        //WINDOW_NORMAL   CV_WINDOW_AUTOSIZE
     moveWindow("uav_path_parameter_tuning",240,180);
     createTrackbar( " reset:", "uav_path_parameter_tuning", &reset, 1, NULL );
-    createTrackbar( " hover:", "uav_path_parameter_tuning", &hover_flag, 1, NULL );
     createTrackbar( " ps:", "uav_path_parameter_tuning", &ps, MaX, NULL );
     createTrackbar( " ds:", "uav_path_parameter_tuning", &ds, MaX, NULL );
     createTrackbar( " pv:", "uav_path_parameter_tuning", &pv, MaX, NULL );

@@ -50,7 +50,6 @@ void roi_callback(const sensor_msgs::RegionOfInterest::ConstPtr& msg)
 
             tracker_cmd.angular.x = true;
             tracker_publisher.publish(tracker_cmd);
-            tracker_flag=0;
 }
 
 int main(int argc, char **argv)
@@ -58,10 +57,10 @@ int main(int argc, char **argv)
 	ros::init(argc,argv,"multi_tracker_node");
 	ros::NodeHandle n;
 	ros::Subscriber  height_sub = n.subscribe("/px4flow/opt_flow",10,height_callback);
-             ros::Subscriber  roi_sub = n.subscribe("/sigle_roi",10,roi_callback);
-             tracker_publisher = n.advertise<geometry_msgs::Twist>("tracker_cmd",10);
+       ros::Subscriber  roi_sub = n.subscribe("/sigle_roi",10,roi_callback);
+       tracker_publisher = n.advertise<geometry_msgs::Twist>("tracker_cmd",10);
 
-    namedWindow("tracker_parameter_tuning",CV_WINDOW_AUTOSIZE);
+    namedWindow("tracker_parameter_tuning",WINDOW_NORMAL);  //WINDOW_NORMAL   CV_WINDOW_AUTOSIZE
     moveWindow("tracker_parameter_tuning",240,180);
     createTrackbar( " ps:", "tracker_parameter_tuning", &ps, MaX, NULL );
     createTrackbar( " ds:", "tracker_parameter_tuning", &ds, MaX, NULL );
@@ -70,13 +69,6 @@ int main(int argc, char **argv)
              ros::Rate loop_rate(250);
              while(ros::ok())
              {
-                 tracker_flag++;
-                 if(tracker_flag>150)
-                 {
-                  tracker_flag=300;
-                  tracker_cmd.angular.x = false;
-                  tracker_publisher.publish(tracker_cmd);
-                 }
                  ros::spinOnce();      
                  loop_rate.sleep();
                  waitKey(1); 

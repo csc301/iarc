@@ -1,0 +1,6 @@
+<launch>
+
+    <include file="$(find rplidar_ros)/launch/rplidar.launch" />
+    <node name="obstacle_avoidance_node" pkg="simple_obstacle_avoidance" type="obstacle_avoidance_node" output="screen" />
+
+</launch>

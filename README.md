@@ -26,6 +26,8 @@ sudo ln -sf ./lapack/liblapack.so.3.0 ./liblapack.so
     serialdata[2] = msg->linear.z;  //height          controlthrottle
     serialdata[3] = msg->angular.z; //yaw            controlyaw
 
+    
+rmmod ftdi_sio 
 
 float32 ground_distance  # distance to ground in meters
 int16   flow_x           # x-component of optical flow in pixels
