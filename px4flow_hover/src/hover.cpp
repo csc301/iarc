@@ -13,7 +13,7 @@
 using namespace std;
 using namespace cv;
 
-bool avo_flag = false,time_flag=false;
+bool avo_flag = false,time_flag=false,tracker_flag=false;
 float sum_x,sum_y,vx,vy,height;
 float psf,dsf,pvf,vx_ref,vy_ref,sum_x_ref=0,sum_y_ref=0,out_x,out_y;
 double dt=0;
@@ -89,10 +89,18 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
 
             hover_publisher.publish(hover_cmd);          
 
-       if(avo_flag == true)
+       if(avo_flag == true)            
        { 
               sum_x_ref=sum_x;
               sum_y_ref=sum_y;
+              //cout <<"avo_flag"<<endl;
+       }
+
+       if(tracker_flag == true)         
+       { 
+              sum_x_ref=sum_x;
+              sum_y_ref=sum_y;
+              //cout <<"tracker_flag"<<endl;
        }
 
        path_msg.header.frame_id = "map";
@@ -114,13 +122,20 @@ void avo_flag_callback(const std_msgs::Bool avo_flag_msg)
    avo_flag =  avo_flag_msg.data;
 }
 
+void tracker_flag_callback(const std_msgs::Bool tracker_flag_msg)
+{
+   tracker_flag =  tracker_flag_msg.data;
+}
+
+
 int main(int argc,char **argv)
 {
     ros::init(argc,argv,"flow_position_node");
     ros::NodeHandle n;
 
-    ros::Subscriber px4flow_sub = n.subscribe("/px4flow/opt_flow", 100, opt_flow_callback);
-    ros::Subscriber avo_flag_sub = n.subscribe("/obstacle_avoid_flag", 100, avo_flag_callback);
+    ros::Subscriber px4flow_sub = n.subscribe("/px4flow/opt_flow", 10, opt_flow_callback);
+    ros::Subscriber avo_flag_sub = n.subscribe("/obstacle_avoid_flag", 10, avo_flag_callback);
+    ros::Subscriber tracker_flag_sub = n.subscribe("/irobot_tracker_flag", 10, tracker_flag_callback);
 
     path_publisher = n.advertise<nav_msgs::Path>("uav_path",100);
     hover_publisher = n.advertise<geometry_msgs::Twist>("hover_cmd",100);
