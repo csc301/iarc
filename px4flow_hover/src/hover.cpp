@@ -18,7 +18,7 @@ float sum_x,sum_y,vx,vy,height;
 float psf,dsf,pvf,vx_ref,vy_ref,sum_x_ref=0,sum_y_ref=0,out_x,out_y;
 double dt=0;
 float sum_vx=0,sum_vy=0;  
-int quality_value,reset=0;
+int quality_value,reset=0,sum_quality=0;
 int ps=200,ds=130,pv=300,out_threshold=70,v_max=3;
 ros::Time  t_now,t_last;
 ros::Publisher path_publisher,hover_publisher;
@@ -26,6 +26,9 @@ nav_msgs::Path path_msg;
 geometry_msgs::PoseStamped pose_msg;
 geometry_msgs::Twist hover_cmd;
 list<float> fliter_vx(5,0),fliter_vy(5,0);
+list<int> quality(5,0);
+list<int>::iterator qua_iter;
+list<float>::iterator vx_iter,vy_iter;
 
 void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
 {
@@ -38,12 +41,23 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
            quality_value = msg ->quality;  
            fliter_vx.push_front(vx);
            fliter_vy.push_front(vy);
+           quality.push_front(quality_value);
+           quality.pop_back();
            fliter_vx.pop_back();
            fliter_vy.pop_back();
-           for(list<float>::iterator vx_iter=fliter_vx.begin();vx_iter!=fliter_vx.end();vx_iter++)sum_vx+=*vx_iter;
-            vx = sum_vx/fliter_vx.size();
-           for(list<float>::iterator vy_iter=fliter_vy.begin();vy_iter!=fliter_vy.end();vy_iter++)sum_vy+=*vy_iter;
-            vy = sum_vy/fliter_vy.size();
+           
+           for(vx_iter=fliter_vx.begin(),vy_iter=fliter_vy.begin(),qua_iter=quality.begin();
+            vx_iter!=fliter_vx.end();vx_iter++,qua_iter++,vy_iter++)
+                 {
+                    sum_vx+=(*vx_iter)*(*qua_iter);
+                    sum_vy+=(*vy_iter)*(*qua_iter);
+                    sum_quality+=*qua_iter;
+                 }
+            vx = sum_vx/sum_quality;
+            vy = sum_vy/sum_quality;
+            sum_vx=0;
+            sum_vy=0;
+            sum_quality=0;
 
            if (time_flag==false)
            {
@@ -107,10 +121,10 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
        pose_msg.pose.position.x = sum_x;
        pose_msg.pose.position.y = sum_y;
        pose_msg.pose.position.z = height;
-       //pose_msg.pose.orientation.x = 1;
+       //pose_msg.pose.orientation.x = 0;
        //pose_msg.pose.orientation.y = 0;
        //pose_msg.pose.orientation.z = 0;
-       //pose_msg.pose.orientation.w = 0;
+       //pose_msg.pose.orientation.w = 1;
        path_msg.poses.push_back(pose_msg);
        path_publisher.publish(path_msg);
     
