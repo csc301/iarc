@@ -55,7 +55,7 @@ nh_(nh)
 
   std::string camera_topic;
     if (!nh_.getParam ("from_camera/camera_topic_name", camera_topic))  
-      camera_topic = "/usb_camera/image_raw";
+      camera_topic = "/usb_camera/image_rect_color";
   image_subsciber = nh_.subscribe(camera_topic.c_str(), 100, &multi_object_::image_subcallback,this);
   rois_publisher = nh_.advertise<multi_object::RoiArray>("rois_list",100);
   roi_publisher = nh_.advertise<sensor_msgs::RegionOfInterest>("sigle_roi",100);
