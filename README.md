@@ -1,5 +1,9 @@
 # iarc
 this is for fun.......
+ 
+            msg.linear_acceleration.x = pitch;       forward positive 
+            msg.linear_acceleration.y = roll;          leftward positive
+            msg.linear_acceleration.z = yaw;         Z positive
 
 apt-get install package=version
    

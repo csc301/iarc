@@ -6,7 +6,7 @@
     <node name="obstacle_avoidance_node" pkg="simple_obstacle_avoidance" type="obstacle_avoidance_node" output="screen" />
     
   <node pkg="multi_object" type="multi_object_node" name="multi_object_node" output="screen">
-    <param name="camera_topic_name" type="string" value="/usb_camera/image_raw"/>
+    <param name="camera_topic_name" type="string" value="/usb_camera/image_rect_color"/>
   </node>
 
   <node pkg="multi_obj_tracker" type="tracker_node" name="tracker_node" output="screen"/>

@@ -9,68 +9,59 @@
 #include <iostream>
 #include <list>
 #define MaX  1000
-#define FLOW_HEIGHT  1.0
+#define FLOW_HEIGHT  0.6
 using namespace std;
 using namespace cv;
 
-bool avo_flag = false,time_flag=false,tracker_flag=false;
-float sum_x,sum_y,vx,vy,height;
+bool avo_flag = false,tracker_flag=false;
+float sum_x=0,sum_y=0,vx,vy,height,height_last;
 float psf,dsf,pvf,vx_ref,vy_ref,sum_x_ref=0,sum_y_ref=0,out_x,out_y;
 double dt=0;
-float sum_vx=0,sum_vy=0;  
-int quality_value,reset=0,sum_quality=0;
-int ps=200,ds=130,pv=300,out_threshold=70,v_max=3;
-ros::Time  t_now,t_last;
+int ps=185,ds=190,pv=300,out_threshold=70,v_max=3,reset=0;
+ros::Time t_now,t_last;
 ros::Publisher path_publisher,hover_publisher;
 nav_msgs::Path path_msg;
 geometry_msgs::PoseStamped pose_msg;
 geometry_msgs::Twist hover_cmd;
 list<float> fliter_vx(5,0),fliter_vy(5,0);
-list<int> quality(5,0);
-list<int>::iterator qua_iter;
 list<float>::iterator vx_iter,vy_iter;
+
+int xx=0,yy=0;
 
 void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
 {
-	height = msg -> ground_distance ;          
-       
-       if(height>FLOW_HEIGHT)   
-       {
-           vx = msg -> velocity_x;                      
-           vy = -1.0*msg -> velocity_y;                        
-           quality_value = msg ->quality;  
+     if((float)(msg->ground_distance)>FLOW_HEIGHT && (msg->ground_distance)<3)  
+      {
+	    height = msg->ground_distance; 
+           if(height>(height_last+1.0))height=height_last;
+           height_last=height;
+           vx = -1.0*msg -> velocity_x;                      
+           vy = msg -> velocity_y;                        
            fliter_vx.push_front(vx);
            fliter_vy.push_front(vy);
-           quality.push_front(quality_value);
-           quality.pop_back();
            fliter_vx.pop_back();
            fliter_vy.pop_back();
-           
-           for(vx_iter=fliter_vx.begin(),vy_iter=fliter_vy.begin(),qua_iter=quality.begin();
-            vx_iter!=fliter_vx.end();vx_iter++,qua_iter++,vy_iter++)
+          float sum_vx=0,sum_vy=0; 
+           for(vx_iter=fliter_vx.begin(),vy_iter=fliter_vy.begin();vx_iter!=fliter_vx.end();vx_iter++,vy_iter++)
                  {
-                    sum_vx+=(*vx_iter)*(*qua_iter);
-                    sum_vy+=(*vy_iter)*(*qua_iter);
-                    sum_quality+=*qua_iter;
+                    sum_vx+=(*vx_iter);
+                    sum_vy+=(*vy_iter);
                  }
-            vx = sum_vx/sum_quality;
-            vy = sum_vy/sum_quality;
-            sum_vx=0;
-            sum_vy=0;
-            sum_quality=0;
+            vx = sum_vx/fliter_vx.size();
+            vy = sum_vy/fliter_vy.size();
 
-           if (time_flag==false)
-           {
-             time_flag==true;
-             t_last = msg->header.stamp;
-           }
-           
            t_now = msg->header.stamp;
            dt = (double( t_now.sec + 1e-9 * t_now.nsec )) - (double( t_last.sec + 1e-9 * t_last.nsec ));
            t_last = t_now;
-            sum_x += vx * dt;
-            sum_y += vy * dt;
+
+            sum_x += (vx * dt);
+            sum_y += (vy * dt);
        }
+     else
+        {
+           t_last = msg->header.stamp;
+           height_last=msg->ground_distance;
+        }
 
        if(reset == 1)
        {
@@ -80,6 +71,11 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
               sum_y_ref=0;
               path_msg.poses.clear();
        }
+       else
+        {
+          sum_x_ref=xx;
+          sum_y_ref=yy;
+        }
 
        psf = float(ps/100.0);
        dsf = float(ds/100.0);
@@ -141,7 +137,6 @@ void tracker_flag_callback(const std_msgs::Bool tracker_flag_msg)
    tracker_flag =  tracker_flag_msg.data;
 }
 
-
 int main(int argc,char **argv)
 {
     ros::init(argc,argv,"flow_position_node");
@@ -162,6 +157,9 @@ int main(int argc,char **argv)
     createTrackbar( " pv:", "uav_path_parameter_tuning", &pv, MaX, NULL );
     createTrackbar( "threshold:", "uav_path_parameter_tuning", &out_threshold, 100, NULL );
     createTrackbar( "v_max:", "uav_path_parameter_tuning", &v_max, 6, NULL );
+
+    createTrackbar( "xx:", "uav_path_parameter_tuning", &xx, 1, NULL );
+    createTrackbar( "yy", "uav_path_parameter_tuning", &yy, 1, NULL );
 
     ros::spin();
     return 0;

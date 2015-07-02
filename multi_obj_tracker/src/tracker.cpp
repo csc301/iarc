@@ -6,7 +6,7 @@
 #include "geometry_msgs/Twist.h"
 #include <px_comm/OpticalFlow.h>
 #include <iostream>
-#define FOCUS 400
+#define FOCUS 100
 #define MaX  1000
 #define out_threshold 80
 using namespace std;
@@ -15,7 +15,7 @@ using namespace cv;
 std_msgs::Bool tracker_flag;
 geometry_msgs::Twist tracker_cmd;
 ros::Publisher tracker_publisher,tracker_flag_pub;
-float height;
+float height=0;
 float vx,vy,error_x,error_y,out_x,out_y;
 int tracker_counter=0;
 int ps=310,ds=280,pv=300;
@@ -40,8 +40,9 @@ void roi_callback(const sensor_msgs::RegionOfInterest::ConstPtr& msg)
             out_x = pvf  * ( psf *error_x-dsf*vx);
             out_y = pvf  * ((psf+0.5)*error_y - dsf*vy);
  
-            //cout << error_x <<" "<< error_y <<endl;
+            //cout <<int(msg->x_offset) <<" "<<int(msg->y_offset)<<endl;
             cout << error_x <<" "<< error_y << "   "<< out_x <<" "<<  out_y  <<endl;
+
             if(out_x>out_threshold)out_x=out_threshold;
             if(out_x<-1*out_threshold)out_x=-1*out_threshold;
             if(out_y>out_threshold)out_y=out_threshold;

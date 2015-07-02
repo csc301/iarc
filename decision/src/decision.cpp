@@ -11,7 +11,7 @@ using namespace cv;
 geometry_msgs::Twist hover_msg,avo_msg,tracker_msg;
 ros::Publisher decision_publisher;
 float out_z,height,height_last;
-int given_height=60,hp = 80,hd = 50;
+int given_height=70,hp =80,hd = 60;
 
 int avo_flag=0,tracker_flag=0;
 
@@ -84,17 +84,17 @@ int main(int argc,char **argv)
         if(avo_msg.angular.x==1)
         {
           decision_publisher.publish(avo_msg);
-          cout<<"avo"<< endl;
+         //cout<<"avo"<< endl;
         }
         else if (tracker_msg.angular.x==1)
         {
            decision_publisher.publish(tracker_msg);
-           cout<<"tracker"<< endl;        
+           //cout<<"tracker"<< endl;        
         }
         else 
         {
            decision_publisher.publish(hover_msg);
-           cout<<"hover"<< endl;        
+          // cout<<"hover"<< endl;        
         }
 
        ros::spinOnce();
