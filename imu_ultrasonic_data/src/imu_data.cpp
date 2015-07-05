@@ -14,7 +14,7 @@ int main(int argc,char **argv)
     ros::NodeHandle n;
     ros::Publisher imu_pub = n.advertise<sensor_msgs::Imu>("imu_data",100);      
     ros::ServiceServer imu_srv = n.advertiseService("imu_data_srv", imu_data_callback);
-    ros::Rate loop_rate(250);  
+    ros::Rate loop_rate(200);  
     sensor_msgs::Imu msg;
 
     ImuData d;
@@ -41,6 +41,10 @@ int main(int argc,char **argv)
             pitch = ((d.r[1]-pitchoffside)/180.0)*pi;
             yaw = ((d.r[2]-yawoffside)/180.0)*pi;
 
+            //roll = d.r[0];
+            //pitch = d.r[1];
+            //yaw = d.r[2];
+
             /*if ((d.r[2]-yawoffside)>0)
             {
                     yawtemp = ((d.r[2]-yawoffside)/(180.0-yawoffside))*180.0;
@@ -52,15 +56,19 @@ int main(int argc,char **argv)
                   yaw = (yawtemp/180.0)*pi; 
             }*/
 
-            msg.orientation.x = -1.0*roll;                              // Euler angle data.                    float r[3];  
-            msg.orientation.y = -1.0*pitch;
-            msg.orientation.z = yaw;
+            //msg.orientation.x = -1.0*roll;                              // Euler angle data.                    float r[3];  
+            //msg.orientation.y = -1.0*pitch;
+            //msg.orientation.z = yaw;
             msg.angular_velocity.x = d.g[0];                    // Angular velocity data.               float w[3];    rad/s
             msg.angular_velocity.y = d.g[1];
             msg.angular_velocity.z = d.g[2];
-            msg.linear_acceleration.x = d.linAcc[0];        // Linear acceleration x, y and z.      float linAcc[3];   n/g
-            msg.linear_acceleration.y = d.linAcc[1];
-            msg.linear_acceleration.z = d.linAcc[2];	
+            //msg.linear_acceleration.x = d.linAcc[0];        // Linear acceleration x, y and z.      float linAcc[3];   n/g
+            //msg.linear_acceleration.y = d.linAcc[1];
+            //msg.linear_acceleration.z = d.linAcc[2];	
+
+            msg.linear_acceleration.x = roll;        // Linear acceleration x, y and z.      float linAcc[3];   n/g
+            msg.linear_acceleration.y = pitch;
+            msg.linear_acceleration.z = yaw;  
 
             imu_pub.publish(msg); 
             msg_srv = msg;

@@ -32,10 +32,10 @@ class multi_object_
    private:
       ros::NodeHandle nh_;
       ros::Subscriber image_subsciber;
-      ros::Publisher  rois_publisher,roi_publisher;
+      ros::Publisher  rois_publisher,roi_publisher,edge_publisher;
 
       cv_bridge::CvImagePtr cv_ptr;
-      sensor_msgs::RegionOfInterest rois_msg;
+      sensor_msgs::RegionOfInterest rois_msg,edge_msg;
       multi_object::RoiArray roi_arr;
 
       Mat frame_raw;
@@ -55,10 +55,12 @@ nh_(nh)
 
   std::string camera_topic;
     if (!nh_.getParam ("from_camera/camera_topic_name", camera_topic))  
-      camera_topic = "/usb_camera/image_raw";
-  image_subsciber = nh_.subscribe(camera_topic.c_str(), 100, &multi_object_::image_subcallback,this);
-  rois_publisher = nh_.advertise<multi_object::RoiArray>("rois_list",100);
-  roi_publisher = nh_.advertise<sensor_msgs::RegionOfInterest>("sigle_roi",100);
+      camera_topic = "/usb_camera/image_rect_color";
+  image_subsciber = nh_.subscribe(camera_topic.c_str(), 10, &multi_object_::image_subcallback,this);
+  rois_publisher = nh_.advertise<multi_object::RoiArray>("rois_list",10);
+  roi_publisher = nh_.advertise<sensor_msgs::RegionOfInterest>("sigle_roi",10);
+  edge_publisher = nh_.advertise<sensor_msgs::RegionOfInterest>("red_edge",10);
+
 
   ros::Rate loop_rate(30);
   //namedWindow("image_rect_color",WINDOW_NORMAL);
@@ -116,12 +118,15 @@ nh_(nh)
       //drawContours(mv[0], contours, i, Scalar(255), 2);   
       for(int i=0;i<contours.size();i++)
         {
-          Rect r = boundingRect(Mat(contours[i]));                       //长方形包络
+          Rect r = boundingRect(Mat(contours[i]));                //长方形包络
+
 	  rois_msg.x_offset=r.x;
 	  rois_msg.y_offset=r.y;
 	  rois_msg.height=r.height;
 	  rois_msg.width=r.width;
           //////////cout << r.x <<" "<< r.y <<" "<< r.width <<" "<< r.height <<endl;
+
+
       roi_publisher.publish(rois_msg);
           roi_arr.list.push_back(rois_msg);
           drawContours(binary, contours, i, Scalar(155), 2);      // -1 表示所有轮廓    //255白色  
