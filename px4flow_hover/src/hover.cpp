@@ -47,7 +47,7 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
 
            if (time_flag==false)
            {
-             time_flag==true;
+             time_flag=true;
              t_last = msg->header.stamp;
            }
            
@@ -103,6 +103,7 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
               //cout <<"tracker_flag"<<endl;
        }
 
+       cout<<sum_x<<"  "<<sum_y<<endl;
        path_msg.header.frame_id = "map";
        pose_msg.pose.position.x = sum_x;
        pose_msg.pose.position.y = sum_y;
