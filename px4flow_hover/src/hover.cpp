@@ -73,8 +73,8 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
        }
        else
         {
-          sum_x_ref=xx;
-          sum_y_ref=yy;
+          sum_x_ref=xx;     //sum_x
+          sum_y_ref=yy;    //sum_y
         }
 
        psf = float(ps/100.0);
@@ -113,7 +113,6 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
               //cout <<"tracker_flag"<<endl;
        }
 
-       cout<<sum_x<<"  "<<sum_y<<endl;
        path_msg.header.frame_id = "map";
        pose_msg.pose.position.x = sum_x;
        pose_msg.pose.position.y = sum_y;
