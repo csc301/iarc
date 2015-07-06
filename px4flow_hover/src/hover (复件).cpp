@@ -8,15 +8,16 @@
 #include "std_msgs/Bool.h"
 #include <iostream>
 #include <list>
-#define FLOW_HEIGHT  0.5
+#define MaX  1000
+#define FLOW_HEIGHT  0.6
 using namespace std;
 using namespace cv;
 
 bool avo_flag = false,tracker_flag=false;
 float sum_x=0,sum_y=0,vx,vy,height,height_last;
-float sum_x_ref=0,sum_y_ref=0,out_x,out_y,error_x=0,error_y=0,sum_error_x=0,sum_error_y=0;
+float psf,dsf,pvf,vx_ref,vy_ref,sum_x_ref=0,sum_y_ref=0,out_x,out_y;
 double dt=0;
-int ps=60,ds=40,is=1,out_threshold=70,removei=60,reset=0,i_rate=20;
+int ps=185,ds=190,pv=300,out_threshold=70,v_max=3,reset=0;
 ros::Time t_now,t_last;
 ros::Publisher path_publisher,hover_publisher;
 nav_msgs::Path path_msg;
@@ -40,7 +41,7 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
            fliter_vy.push_front(vy);
            fliter_vx.pop_back();
            fliter_vy.pop_back();
-           float sum_vx=0,sum_vy=0; 
+          float sum_vx=0,sum_vy=0; 
            for(vx_iter=fliter_vx.begin(),vy_iter=fliter_vy.begin();vx_iter!=fliter_vx.end();vx_iter++,vy_iter++)
                  {
                     sum_vx+=(*vx_iter);
@@ -69,8 +70,6 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
               sum_x_ref=0;
               sum_y_ref=0;
               path_msg.poses.clear();
-              sum_error_y=0;
-              sum_error_x=0;
        }
        else
         {
@@ -78,29 +77,18 @@ void opt_flow_callback(const px_comm::OpticalFlow::ConstPtr& msg )
           sum_y_ref=yy;    //sum_y
         }
 
-       error_x = sum_x_ref - sum_x;
-       error_y = sum_y_ref - sum_y;
-
-       if (error_x<(float)removei/100.0 && error_x>(float)removei/-100.0 && out_x<out_threshold && out_x>-1*out_threshold)
-       {
-         sum_error_x+=error_x/(i_rate/10.0);
-       }
-       if (error_x*sum_error_x<0)
-       {
-          sum_error_x=0;
-       }
-
-      if (error_y<(float)removei/100.0 && error_y>(float)removei/-100.0 && out_y<out_threshold && out_y>-1*out_threshold)
-       {
-         sum_error_y+=error_y/(i_rate/10.0);
-       }
-      if (error_y*sum_error_y<0)
-       {
-          sum_error_y=0;
-       }
-
-            out_x = ps*error_x + is*sum_error_x - ds*vx;
-            out_y = ps*error_y + is*sum_error_y - ds*vy;
+       psf = float(ps/100.0);
+       dsf = float(ds/100.0);
+       pvf = float(pv/10.0);
+       
+            vx_ref = psf * (sum_x_ref - sum_x) - dsf*vx;
+            vy_ref = psf * (sum_y_ref - sum_y) - dsf*vy;
+            if(vx_ref>v_max)vx_ref=v_max;
+            if(vx_ref<-1*v_max)vx_ref=-1*v_max;
+            if(vy_ref>v_max)vy_ref=v_max;
+            if(vy_ref<-1*v_max)vy_ref=-1*v_max;
+            out_x = pvf * (vx_ref - vx);
+            out_y = pvf * (vy_ref - vy);
  
             if(out_x>out_threshold)out_x=out_threshold;
             if(out_x<-1*out_threshold)out_x=-1*out_threshold;
@@ -164,13 +152,12 @@ int main(int argc,char **argv)
     namedWindow("uav_path_parameter_tuning",WINDOW_NORMAL);        //WINDOW_NORMAL   CV_WINDOW_AUTOSIZE
     moveWindow("uav_path_parameter_tuning",240,180);
     createTrackbar( " reset:", "uav_path_parameter_tuning", &reset, 1, NULL );
-    createTrackbar( " ps:", "uav_path_parameter_tuning", &ps, 100, NULL );
-    createTrackbar( " ds:", "uav_path_parameter_tuning", &ds, 100, NULL );
-    createTrackbar( " is:", "uav_path_parameter_tuning", &is, 3, NULL );
-    createTrackbar( "removei:", "uav_path_parameter_tuning", &removei, 100, NULL );
-    createTrackbar( "i_rate:", "uav_path_parameter_tuning", &i_rate, 50, NULL );
-
+    createTrackbar( " ps:", "uav_path_parameter_tuning", &ps, MaX, NULL );
+    createTrackbar( " ds:", "uav_path_parameter_tuning", &ds, MaX, NULL );
+    createTrackbar( " pv:", "uav_path_parameter_tuning", &pv, MaX, NULL );
     createTrackbar( "threshold:", "uav_path_parameter_tuning", &out_threshold, 100, NULL );
+    createTrackbar( "v_max:", "uav_path_parameter_tuning", &v_max, 6, NULL );
+
     createTrackbar( "xx:", "uav_path_parameter_tuning", &xx, 1, NULL );
     createTrackbar( "yy", "uav_path_parameter_tuning", &yy, 1, NULL );
 

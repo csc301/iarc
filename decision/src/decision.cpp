@@ -12,7 +12,7 @@ geometry_msgs::Twist hover_msg,avo_msg,tracker_msg;
 ros::Publisher decision_publisher;
 float out_z,height,height_last;
 double hei_error=0,sum_err=0;
-int given_height=100,hp =80,hd = 60,hi=100,removei=70,haha=5;
+int given_height=100,hp =80,hd = 60,hi=100,removei=50,haha=5;
 
 int avo_flag=0,tracker_flag=0;
 
@@ -62,7 +62,7 @@ int main(int argc,char **argv)
     while(ros::ok())
     {
        hei_error = (given_height+50.0)*0.01-height;
-       if (hei_error<removei/100.0 && hei_error>removei/(-100.0) && out_z<55 && out_z>-55)
+       if (hei_error<removei/100.0 && hei_error>removei/(-100.0) && out_z<55 && out_z>-75)
        {
               sum_err+=(hei_error/haha);
        }
